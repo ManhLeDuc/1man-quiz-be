@@ -74,12 +74,16 @@ const userInfo = (req, res) => {
           return res
             .status(404)
             .json({ "message": "User not found" });
-        } else if (err) {
+        }
+        else if (err) {
           return res
             .status(404)
             .json(err);
         }
-        res.json(user);
+        else {
+          res.json({name: user.name, email: user.email, avatarUrl: user.avatarUrl, bestScore: user.bestScore, isAdmin: user.isAdmin});
+        }
+
       });
   } else {
     return res

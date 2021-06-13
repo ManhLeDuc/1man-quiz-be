@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  isAdmin:{
+    type: Boolean,
+    default: false,
+  },
   bestScore: { type: Number, default: 0 },
   currentScore: { type: Number, default: 0 },
   currentQuestion: {
@@ -49,6 +53,7 @@ userSchema.methods.generateJwt = function () {
     _id: this._id,
     email: this.email,
     name: this.name,
+    isAdmin: this.isAdmin,
     exp: parseInt(expiry.getTime() / 1000, 10),
   }, process.env.JWT_SECRET);
 };
@@ -77,39 +82,6 @@ userSchema.methods.answer = async function (answer) {
     }
   }
   catch (e) {
-    throw e;
-  }
-}
-
-userSchema.methods.getCurrentPlayInfo = async () => {
-  try {
-    let result = {};
-    result.remains = this.remains;
-    result.currentScore = this.currentScore;
-    let question = await Questions.findById(this.currentQuestion).exec();
-
-    while(!question){
-      this.currentQuestion = await Questions.getRandomQuestion();
-      await this.save();
-      question = await Questions.findById(this.currentQuestion).exec();
-    }
-    
-    let awnsers = question.getAnswers();
-    result.awnsers = awnsers;
-    return result;
-  }
-  catch(e){
-    throw e;
-  }
-  
-}
-
-userSchema.methods.newQuestion = async () => {
-  try{
-    this.currentQuestion = await Questions.getRandomQuestion();
-    await this.save();
-  }
-  catch(e){
     throw e;
   }
 }

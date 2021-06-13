@@ -28,47 +28,14 @@ function arrayLimit(val) {
 
 QuestionSchema.statics.getRandomQuestion = async () => {
   try {
-    var count = await this.count().exec();
+    var count = await mongoose.model('Questions').countDocuments({isActive: true}).exec();
     var random = Math.floor(Math.random() * count);
-    var doc = await this.findOne().skip(random).exec();
+    var doc = await mongoose.model('Questions').findOne({isActive: true}).skip(random).exec();
     return doc._id;
   }
   catch (e) {
     throw e;
   }
-}
-
-QuestionSchema.methods.getAnswers = () => {
-
-  function shuffle(array) {
-    var currentIndex = array.length, randomIndex;
-
-    // While there remain elements to shuffle...
-    while (0 !== currentIndex) {
-
-      // Pick a remaining element...
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-
-      // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex], array[currentIndex]];
-    }
-
-    return array;
-  }
-  let result = [];
-  result.push(this.correct_answer);
-  for(let i of this.incorrect_answers){
-    result.push(i);
-  }
-
-  shuffle(result);
-  return result;
-}
-
-QuestionSchema.methods.checkAnswer = (answer)=>{
-  return this.correct_answer == answer;
 }
 
 mongoose.model('Questions', QuestionSchema);
