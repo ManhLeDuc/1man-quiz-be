@@ -40,6 +40,11 @@ router
   .put(auth, ctrlQuestion.putQuestionById)
   .delete(auth, ctrlQuestion.deleteQuestionById);
 
+  router
+  .route('/questions/:questionId/active')
+  .put(auth, ctrlQuestion.activeQuestion)
+
+
 router
   .route('/me')
   .get(auth, ctrlAuth.userInfo);
@@ -47,6 +52,10 @@ router
 router
   .route('/user/update')
   .put(auth, multerStorage.single('image'), ctrlUser.update);
+
+router
+  .route('/user/bestScore')
+  .get(auth, ctrlUser.getBestScore);
 
 router.post('/register', ctrlAuth.register);
 router.post('/login', ctrlAuth.login);

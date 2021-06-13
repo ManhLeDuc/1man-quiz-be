@@ -45,6 +45,26 @@ const update = async (req, res) => {
 
 }
 
+const getBestScore = async (req, res) => {
+  try {
+    if (req.payload && req.payload._id) {
+      let user = await UserModel.findById(req.payload._id).exec();
+      return res
+        .status(200)
+        .json({ success: true, data: user.bestScore });
+    }
+    else {
+      return res
+        .status(404)
+        .json({ "message": "Bad Request" });
+    }
+  }
+  catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .json(e);
+  }
+}
 
-
-module.exports = { update }
+module.exports = { update, getBestScore }

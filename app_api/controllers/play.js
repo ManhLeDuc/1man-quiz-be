@@ -2,6 +2,18 @@ const mongoose = require('mongoose');
 const QuestionModel = mongoose.model('Questions');
 const UserModel = mongoose.model('Users');
 
+getRandomQuestion = async () => {
+  try {
+    var count = await mongoose.model('Questions').countDocuments({isActive: true}).exec();
+    var random = Math.floor(Math.random() * count);
+    var doc = await mongoose.model('Questions').findOne({isActive: true}).skip(random).exec();
+    return doc._id;
+  }
+  catch (e) {
+    throw e;
+  }
+}
+
 const play = async (req, res) => {
   try {
     if (req.payload && req.payload._id) {
@@ -13,7 +25,7 @@ const play = async (req, res) => {
       let question = await QuestionModel.findById(user.currentQuestion).exec();
 
       while (!question) {
-        user.currentQuestion = await QuestionModel.getRandomQuestion();
+        user.currentQuestion = await getRandomQuestion();
         await user.save();
         question = await QuestionModel.findById(user.currentQuestion);
       }
@@ -75,7 +87,7 @@ const answer = async (req, res) => {
       let question = await QuestionModel.findById(user.currentQuestion).exec();
 
       if (!question) {
-        user.currentQuestion = await QuestionModel.getRandomQuestion();
+        user.currentQuestion = await getRandomQuestion();
         await user.save();
         return res
           .status(200)
@@ -102,7 +114,7 @@ const answer = async (req, res) => {
           
         }
 
-        user.currentQuestion = await QuestionModel.getRandomQuestion();
+        user.currentQuestion = await getRandomQuestion();
 
         await user.save();
 

@@ -15,7 +15,9 @@ const QuestionSchema = new mongoose.Schema({
     type: [{
       type: String,
     }],
-    validate: [arrayLimit, 'Answers exceeds the limit of 4']
+    require: true,
+    default: ["","",""],
+    validate: [arrayLimit, 'Answers must be 4']
   },
   isActive: {
     type: Boolean,
@@ -28,7 +30,7 @@ const QuestionSchema = new mongoose.Schema({
 });
 
 function arrayLimit(val) {
-  return val.length <= 3;
+  return val.length == 3;
 }
 
 QuestionSchema.statics.getRandomQuestion = async () => {

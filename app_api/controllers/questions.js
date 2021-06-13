@@ -16,7 +16,7 @@ const authenOwnerQuestion = (req, res, callback) => {
           return res
             .status(404)
             .json(err);
-        } else if ((question.postedBy.toString() !== req.payload._id) && !req.playload.isAdmin) {
+        } else if ((question.postedBy.toString() !== req.payload._id) && !req.payload.isAdmin) {
           return res
             .status(404)
             .json({ "message": "Bad Request" });
@@ -32,49 +32,12 @@ const authenOwnerQuestion = (req, res, callback) => {
   }
 }
 
-// const getQuestions = (req, res) => {
-
-//   if (req.payload && req.payload._id && req.body.pageSize && req.body.pageNumber) {
-//     let condition = {};
-//     if (!req.payload.isAdmin) {
-//       condition = { postedBy: req.playload._id };
-//     }
-
-//     let options = {
-//       select: 'question isActive createAt',
-//       sort: { createAt: -1, correct_answer: 1 },
-//       lean: true,
-//       page: req.body.pageNumber,
-//       limit: req.body.pageSize,
-//     }
-
-//     QuestionModel.paginate(condition, options, (e, docs) => {
-//       if (e) {
-//         return res
-//           .status(404)
-//           .json(e);
-//       }
-//       else {
-//         console.log(docs);
-//         return res
-//           .status(200)
-//           .json({ success: true, data: docs });
-//       }
-//     });
-//   }
-//   else {
-//     return res
-//       .status(404)
-//       .json({ "message": "Bad Request" });
-//   }
-// }
-
 const getQuestions = async (req, res) => {
   try {
     if (req.payload && req.payload._id && req.body.pageSize && req.body.pageNumber) {
       let condition = {};
       if (!req.payload.isAdmin) {
-        condition = { postedBy: req.playload._id };
+        condition = { postedBy: req.payload._id };
       }
 
       let pageSize = parseInt(req.body.pageSize);
@@ -85,12 +48,11 @@ const getQuestions = async (req, res) => {
       let docs = await QuestionModel.find(condition).select({ createAt: 1, _id: 1, question: 1, isActive: 1 }).sort({ createAt: -1, _id: 1 }).skip((pageNumber - 1) * pageSize).limit(pageSize).lean();
       let totalDocs = await QuestionModel.countDocuments(condition);
 
-      let totalPages = Math.ceil(totalDocs/pageSize);
+      let totalPages = Math.ceil(totalDocs / pageSize);
 
       result.totalPages = totalPages;
       result.docs = docs;
 
-      console.log(result);
       return res
         .status(200)
         .json({ success: true, data: result });
@@ -111,115 +73,22 @@ const getQuestions = async (req, res) => {
 
 }
 
-const postQuestion = async (req, res) => {
-  try {
-    if (req.payload && req.payload._id) {
-      let user = await UserModel.findById(req.payload._id).exec();
-
-      let result = {};
-      result.remains = user.remains;
-      result.currentScore = user.currentScore;
-      let question = await QuestionModel.findById(user.currentQuestion).exec();
-
-      while (!question) {
-        user.currentQuestion = await QuestionModel.getRandomQuestion();
-        await user.save();
-        question = await QuestionModel.findById(user.currentQuestion);
-      }
-
-      const shuffle = (array) => {
-        var currentIndex = array.length, randomIndex;
-
-        // While there remain elements to shuffle...
-        while (0 !== currentIndex) {
-
-          // Pick a remaining element...
-          randomIndex = Math.floor(Math.random() * currentIndex);
-          currentIndex--;
-
-          // And swap it with the current element.
-          [array[currentIndex], array[randomIndex]] = [
-            array[randomIndex], array[currentIndex]];
-        }
-
-        return array;
-      };
-
-      let answers = [];
-
-      answers.push(question.correct_answer);
-      for (let i of question.incorrect_answers) {
-        answers.push(i);
-      }
-
-      shuffle(answers);
-      result.answers = answers;
-      result.question = question.question;
-
-      return res
-        .status(200)
-        .json({ success: true, data: result });
-    }
-    else {
-      return res
-        .status(404)
-        .json({ "message": "Bad Request" });
-    }
-  }
-  catch (e) {
-    console.log(e);
-    return res
-      .status(500)
-      .json(e);
-  }
-
-}
-
-const putQuestionById = async (req, res) => {
-  try {
-    if (req.payload && req.payload._id) {
-      let user = await UserModel.findById(req.payload._id).exec();
-
-      let result = {};
-      let question = await QuestionModel.findById(user.currentQuestion).exec();
-
-      if (!question) {
-        user.currentQuestion = await QuestionModel.getRandomQuestion();
-        await user.save();
-        return res
-          .status(200)
-          .json({ success: false, message: "Can not find question" });
-      }
-
-      else {
-        result.correct_answer = question.correct_answer;
-        if (question.correct_answer == req.body.answer) {
-          user.currentScore += 5;
-          result.correct = true;
+const postQuestion = (req, res) => {
+  if (req.payload && req.payload._id) {
+    if (req.body.incorrect_answers && Array.isArray(req.body.incorrect_answers) && req.body.incorrect_answers.length == 3) {
+      const question = new QuestionModel();
+      question.question = req.body.question;
+      question.correct_answer = req.body.correct_answer;
+      question.incorrect_answers = req.body.incorrect_answers;
+      question.postedBy = req.payload._id;
+      question.save((err, doc) => {
+        if (err) {
+          return res.status(404).json(err);
         }
         else {
-          result.correct = false;
-          user.remains -= 1;
-          if (user.remains == 0) {
-            if (user.currentScore > user.bestScore) {
-              user.bestScore = user.currentScore;
-            }
-            result.gameOverScore = user.currentScore;
-            user.currentScore = 0;
-            user.remains = 3;
-          }
-
+          return res.status(200).json({ success: true, data: doc });
         }
-
-        user.currentQuestion = await QuestionModel.getRandomQuestion();
-
-        await user.save();
-
-        return res
-          .status(200)
-          .json({ success: true, data: result });
-      }
-
+      })
     }
     else {
       return res
@@ -227,75 +96,94 @@ const putQuestionById = async (req, res) => {
         .json({ "message": "Bad Request" });
     }
   }
-  catch (e) {
-    console.log(e);
+  else {
     return res
-      .status(500)
-      .json(e);
+      .status(404)
+      .json({ "message": "Bad Request" });
   }
+}
+
+const putQuestionById = (req, res) => {
+  authenOwnerQuestion(req, res,
+    (req, res, question) => {
+      if (question.isActive && !req.payload.isAdmin) {
+        res.status(404).json({ "message": "Bad Request" });
+      }
+      else {
+        if (req.body.question) {
+          question.question = req.body.question;
+        }
+
+        if (req.body.correct_answer) {
+          question.correct_answer = req.body.correct_answer;
+        }
+
+        if (req.body.incorrect_answers) {
+          question.incorrect_answers = req.body.incorrect_answers;
+        }
+
+        question.save((err, doc) => {
+          if (err) {
+            return res.status(500).json(err);
+          }
+          else {
+            return res.status(200).json({ success: true });
+          }
+        })
+      }
+
+    })
 }
 
 const getQuestionById = (req, res) => {
-
+  authenOwnerQuestion(req, res,
+    (req, res, question) => {
+      return res.status(200).json(question);
+    })
 }
 
-const deleteQuestionById = async (req, res) => {
-  try {
-    if (req.payload && req.payload._id) {
-      let user = await UserModel.findById(req.payload._id).exec();
-
-      let result = {};
-      let question = await QuestionModel.findById(user.currentQuestion).exec();
-
-      if (!question) {
-        user.currentQuestion = await QuestionModel.getRandomQuestion();
-        await user.save();
-        return res
-          .status(200)
-          .json({ success: false, message: "Can not find question" });
+const deleteQuestionById = (req, res) => {
+  authenOwnerQuestion(req, res,
+    (req, res, question) => {
+      if (question.isActive && !req.payload.isAdmin) {
+        return res.status(404).json({ "message": "Bad Request" });
       }
-
       else {
-        result.correct_answer = question.correct_answer;
-        if (question.correct_answer == req.body.answer) {
-          user.currentScore += 5;
-          result.correct = true;
-        }
-        else {
-          result.correct = false;
-          user.remains -= 1;
-          if (user.remains == 0) {
-            if (user.currentScore > user.bestScore) {
-              user.bestScore = user.currentScore;
-            }
-            result.gameOverScore = user.currentScore;
-            user.currentScore = 0;
-            user.remains = 3;
+        QuestionModel.findByIdAndDelete(question._id).exec((err, doc) => {
+          if (err) {
+            return res.status(500).json(err);
           }
-
-        }
-
-        user.currentQuestion = await QuestionModel.getRandomQuestion();
-
-        await user.save();
-
-        return res
-          .status(200)
-          .json({ success: true, data: result });
+          else {
+            return res.status(200).json({ success: true });
+          }
+        })
       }
 
-    }
-    else {
-      return res
-        .status(404)
-        .json({ "message": "Bad Request" });
-    }
+    })
+}
+
+const activeQuestion = (req, res) => {
+  if (req.payload && req.payload._id && req.payload.isAdmin) {
+    let isActive = Boolean(req.body.isActive);
+    QuestionModel.findById(req.params.questionId).exec((err, question) => {
+      if (err) {
+        return res.status(404).json(err);
+      }
+      else {
+        question.isActive = isActive;
+        question.save((e, doc) => {
+          if (e) {
+            return res.status(500).json(e);
+          }
+          else {
+            return res.status(200).json({ success: true });
+          }
+        })
+      }
+    })
   }
-  catch (e) {
-    console.log(e);
-    return res
-      .status(500)
-      .json(e);
+  else {
+    return res.status(404).json({ "message": "Bad Request" });
   }
 }
 
@@ -305,4 +193,5 @@ module.exports = {
   postQuestion,
   putQuestionById,
   deleteQuestionById,
+  activeQuestion,
 }
