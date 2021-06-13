@@ -11,9 +11,6 @@ const auth = jwt({
 
 const multerStorage = multer({
   dest: 'public/',
-  // fileFilter: (req,file,callback)=>{
-  //   console.log(file);
-  //   console.log(req.file);
   limits: {
     fileSize: 5000000
   }
@@ -22,26 +19,26 @@ const multerStorage = multer({
 const ctrlQuestion = require('../controllers/questions');
 const ctrlAuth = require('../controllers/authentication');
 const ctrlUser = require('../controllers/users');
+const ctrlPlay = require('../controllers/play');
 
 router
   .route('/play')
-  .put(auth, ctrlQuestion.play);
+  .put(auth, ctrlPlay.play);
 
 router
   .route('/answer')
-  .put(auth, ctrlQuestion.answer);
+  .put(auth, ctrlPlay.answer);
 
-// router
-//   .route('/questions/:wordGroupId')
-//   .get(auth, ctrWordGroups.getWordGroup)
-//   .put(auth, ctrWordGroups.updateWordGroup)
-//   .delete(auth, ctrWordGroups.deleteWordGroup);
+router
+  .route('/questions')
+  .put(auth, ctrlQuestion.getQuestions)
+  .post(auth, ctrlQuestion.postQuestion);
 
-// router
-//   .route('/wordGroups/:wordGroupId/words/:wordId')
-//   .get(auth, ctrWordGroups.getWordFromGroup)
-//   .put(auth, ctrWordGroups.addWordToGroup)
-//   .delete(auth, ctrWordGroups.deleteWordFromGroup);
+router
+  .route('/questions/:questionId')
+  .get(auth, ctrlQuestion.getQuestionById)
+  .put(auth, ctrlQuestion.putQuestionById)
+  .delete(auth, ctrlQuestion.deleteQuestionById);
 
 router
   .route('/me')
