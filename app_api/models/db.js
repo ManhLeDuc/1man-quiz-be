@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const readLine = require('readline');
 
-let dbURL = 'mongodb://127.0.0.1/1manQuiz';
+let dbURL = 'mongodb://127.0.0.1/mongodb+srv://Admin:lb05WQoXf6FiREb7@cluster0.l9py8.mongodb.net/1manQuiz?retryWrites=true&w=majority';
 if (process.env.NODE_ENV === 'production') {
   dbURL = process.env.DB_HOST || process.env.MONGODB_URI;
 }
