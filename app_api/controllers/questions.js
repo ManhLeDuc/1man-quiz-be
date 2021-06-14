@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const QuestionModel = mongoose.model('Questions');
-const UserModel = mongoose.model('Users');
 
 const authenOwnerQuestion = (req, res, callback) => {
   if (req.params.questionId && req.payload && req.payload._id) {
@@ -138,7 +137,7 @@ const putQuestionById = (req, res) => {
 const getQuestionById = (req, res) => {
   authenOwnerQuestion(req, res,
     (req, res, question) => {
-      return res.status(200).json(question);
+      return res.status(200).json({success: true, data: question});
     })
 }
 

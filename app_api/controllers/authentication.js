@@ -33,7 +33,7 @@ const register = (req, res) => {
         const token = user.generateJwt();
         res
           .status(200)
-          .json({ token });
+          .json({ token: token, isAdmin: user.isAdmin });
       }
     });
   }
@@ -56,7 +56,7 @@ const login = (req, res) => {
       const token = user.generateJwt();
       res
         .status(200)
-        .json({ token });
+        .json({ token: token, isAdmin: user.isAdmin });
     } else {
       res
         .status(401)

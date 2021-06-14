@@ -67,4 +67,18 @@ const getBestScore = async (req, res) => {
   }
 }
 
-module.exports = { update, getBestScore }
+const topRank = async (req, res) => {
+  try {
+    let docs = await UserModel.find({}).select({bestScore: 1, _id: -1, name: 1, email: 1}).sort({bestScore: -1, name: -1}).limit(3).lean();
+    res.status(200).json({success: true, data: docs})
+  }
+  catch (e) {
+    console.log(e);
+    return res
+      .status(500)
+      .json(e);
+  }
+
+}
+
+module.exports = { update, getBestScore, topRank }

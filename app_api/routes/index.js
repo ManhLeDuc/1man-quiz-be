@@ -57,6 +57,10 @@ router
   .route('/user/bestScore')
   .get(auth, ctrlUser.getBestScore);
 
+router
+  .route('/topRank')
+  .get(ctrlUser.topRank);
+
 router.post('/register', ctrlAuth.register);
 router.post('/login', ctrlAuth.login);
 
