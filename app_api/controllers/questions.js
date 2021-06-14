@@ -137,7 +137,7 @@ const putQuestionById = (req, res) => {
 const getQuestionById = (req, res) => {
   authenOwnerQuestion(req, res,
     (req, res, question) => {
-      return res.status(200).json({success: true, data: question});
+      return res.status(200).json({ success: true, data: question });
     })
 }
 
@@ -169,15 +169,21 @@ const activeQuestion = (req, res) => {
         return res.status(404).json(err);
       }
       else {
-        question.isActive = isActive;
-        question.save((e, doc) => {
-          if (e) {
-            return res.status(500).json(e);
-          }
-          else {
-            return res.status(200).json({ success: true });
-          }
-        })
+        if (question) {
+          question.isActive = isActive;
+          question.save((e, doc) => {
+            if (e) {
+              return res.status(500).json(e);
+            }
+            else {
+              return res.status(200).json({ success: true });
+            }
+          })
+        }
+        else{
+          return res.status(404).json({ "message": "Question not found" });
+        }
+
       }
     })
   }
