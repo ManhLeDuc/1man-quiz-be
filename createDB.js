@@ -36,7 +36,7 @@ for (let i = 0; i < 40; i++) {
             'correct_answer': decodeHTMLEntities(unescape(result.correct_answer)),
             'incorrect_answers': result.incorrect_answers.map(answer => decodeHTMLEntities(unescape(answer))),
             'isActive': true,
-            'postedBy': "60c4d233f1c05a3074c3b7d7",
+            'postedBy': "60c77afdfedabc3a38705c67",
           }, (err, doc) => {
             if (err) {
               console.log(err);
@@ -50,17 +50,17 @@ for (let i = 0; i < 40; i++) {
     });
 }
 
-let admin = new UserModel();
-admin.isAdmin = true;
-admin.email = 'kun_duc123@yahoo.com.vn';
-admin.name = 'admin';
-admin.setPassword('Vr*8;Kx9,s.+mW)N');
-UserModel.create(admin, (err, doc) => {
-  if (err) {
-    console.log(err);
-  }
-  else {
-    console.log(doc);
-  }
-})
+// let admin = new UserModel();
+// admin.isAdmin = true;
+// admin.email = 'kun_duc123@yahoo.com.vn';
+// admin.name = 'admin';
+// admin.setPassword('Vr*8;Kx9,s.+mW)N');
+// UserModel.create(admin, (err, doc) => {
+//   if (err) {
+//     console.log(err);
+//   }
+//   else {
+//     console.log(doc);
+//   }
+// })
 
