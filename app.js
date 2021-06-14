@@ -28,13 +28,11 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
 }));
 
+app.use('/api', apiRouter);
+
 app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
-
-
-app.use('/api', apiRouter);
-
 
 app.use((err, req, res, next) => {
   if (err.name === 'UnauthorizedError') {
