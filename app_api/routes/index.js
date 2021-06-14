@@ -4,7 +4,7 @@ const jwt = require('express-jwt');
 const multer = require('multer');
 
 const auth = jwt({
-  secret: process.env.JWT_SECRET,
+  secret: "thisIsASecret",
   userProperty: 'payload',
   algorithms: ['sha1', 'RS256', 'HS256']
 });

@@ -55,7 +55,7 @@ userSchema.methods.generateJwt = function () {
     name: this.name,
     isAdmin: this.isAdmin,
     exp: parseInt(expiry.getTime() / 1000, 10),
-  }, process.env.JWT_SECRET);
+  }, "thisIsASecret");
 };
 
 userSchema.methods.answer = async function (answer) {
