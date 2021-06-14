@@ -50,17 +50,17 @@ for (let i = 0; i < 40; i++) {
     });
 }
 
-// let admin = new UserModel();
-// admin.isAdmin = true;
-// admin.email = 'kun_duc123@yahoo.com.vn';
-// admin.name = 'admin';
-// admin.setPassword('Vr*8;Kx9,s.+mW)N');
-// UserModel.create(admin, (err, doc) => {
-//   if (err) {
-//     console.log(err);
-//   }
-//   else {
-//     console.log(doc);
-//   }
-// })
+let admin = new UserModel();
+admin.isAdmin = true;
+admin.email = 'kun_duc123@yahoo.com.vn';
+admin.name = 'admin';
+admin.setPassword('Vr*8;Kx9,s.+mW)N');
+UserModel.create(admin, (err, doc) => {
+  if (err) {
+    console.log(err);
+  }
+  else {
+    console.log(doc);
+  }
+})
 
