@@ -2,9 +2,6 @@ const mongoose = require('mongoose');
 const readLine = require('readline');
 
 let dbURL = 'mongodb+srv://Admin:lb05WQoXf6FiREb7@cluster0.l9py8.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
-if (process.env.NODE_ENV === 'production') {
-  dbURL = process.env.DB_HOST || process.env.MONGODB_URI;
-}
 
 const connect = () => {
   setTimeout(() => mongoose.connect(dbURL, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true }), 1000);
