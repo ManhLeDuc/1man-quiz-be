@@ -20,14 +20,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'build')));
 app.use(passport.initialize());
 
-// app.use(cors({
-//   origin: ["*"],
-//   credentials: true,
-//   methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-// }));
+app.use(cors({
+  origin: ["*"],
+  credentials: true,
+  methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+}));
 
-app.use(cors());
+//app.use(cors());
 
 app.use('/api', apiRouter);
 
